@@ -1,0 +1,27 @@
+{
+  "$comment": "Read by scripts/install.sh, scripts/smoke.mjs and the sync workflow. Generated; edit satellites.config.json in HelpCode-ai/anythingmcp instead.",
+  "repo": "sap-business-one-mcp-server",
+  "owner": "HelpCode-ai",
+  "mainRepo": "HelpCode-ai/anythingmcp",
+  "adapters": [
+    {
+      "slug": "sap-business-one",
+      "region": "de",
+      "requiredEnvVars": [
+        "SAP_B1_HOST",
+        "SAP_B1_PORT",
+        "SAP_B1_COMPANY_DB",
+        "SAP_B1_USERNAME",
+        "SAP_B1_PASSWORD"
+      ]
+    }
+  ],
+  "setup": {
+    "type": "adapter"
+  },
+  "smokeCall": {
+    "tool": "b1_list_business_partners",
+    "args": {},
+    "mayFailWithoutCredentials": true
+  }
+}
