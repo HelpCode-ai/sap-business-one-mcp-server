@@ -2,7 +2,7 @@
   "name": "sap-business-one-mcp-server",
   "private": true,
   "type": "module",
-  "description": "SAP Business One MCP server: Claude & ChatGPT read partners, items, orders, invoices and quotations, and create sales orders.",
+  "description": "SAP Business One MCP server: Claude & ChatGPT read partners, items, orders, invoices, payments and journal entries, and create sales orders.",
   "scripts": {
     "smoke": "node scripts/smoke.mjs",
     "render-tools": "node scripts/render-tools.mjs",

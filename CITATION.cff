@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "sap-business-one-mcp-server: SAP Business One MCP server: Claude & ChatGPT read partners, items, orders, invoices and quotations, and create sales orders."
+title: "sap-business-one-mcp-server: SAP Business One MCP server: Claude & ChatGPT read partners, items, orders, invoices, payments and journal entries, and create sales orders."
 message: "If you use this software, please cite AnythingMCP, which it is built on."
 type: software
 authors:

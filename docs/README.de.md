@@ -2,12 +2,12 @@
 
 [English](../README.md) · **Deutsch**
 
-**Verbinde SAP Business One mit Claude, ChatGPT und Copilot: geschäftspartner, Artikel, Aufträge, Rechnungen, Angebote und Lieferungen als MCP-Tools.** Basiert auf [AnythingMCP](https://github.com/HelpCode-ai/anythingmcp).
+**Verbinde SAP Business One mit Claude, ChatGPT und Copilot: geschäftspartner, Artikel, Verkaufsbelege, Eingangsrechnungen, Zahlungen und Buchungen als MCP-Tools.** Basiert auf [AnythingMCP](https://github.com/HelpCode-ai/anythingmcp).
 
-SAP Business One MCP Server gibt Claude, ChatGPT, Copilot und Cursor 12 Tools für SAP Business One: geschäftspartner, Artikel, Aufträge, Rechnungen, Angebote und Lieferungen. 11 Tools lesen, 1 können Daten ändern. Es läuft auf AnythingMCP: mit einem Klick in AnythingMCP Cloud oder selbst gehostet mit Docker. Zugangsdaten werden verschlüsselt gespeichert, jeder Aufruf landet im Audit-Log.
+SAP Business One MCP Server gibt Claude, ChatGPT, Copilot und Cursor 24 Tools für SAP Business One: geschäftspartner, Artikel, Verkaufsbelege, Eingangsrechnungen, Zahlungen und Buchungen. 23 Tools lesen, 1 können Daten ändern. Es läuft auf AnythingMCP: mit einem Klick in AnythingMCP Cloud oder selbst gehostet mit Docker. Zugangsdaten werden verschlüsselt gespeichert, jeder Aufruf landet im Audit-Log.
 
-**Status:** noch nicht gegen ein Live-System geprüft. Der Adapter folgt der API-Dokumentation des Herstellers; Rückmeldungen sind willkommen.  
-**Adapter synchronisiert:** <!-- synced -->2026-09-26
+**Zuletzt geprüft:** 2026-10-09 gegen a production SAP Business One company database on SQL Server, through AnythingMCP Cloud (read traffic on business partners, items, A/R and A/P invoices, payments, journal entries and the chart of accounts).  
+**Adapter synchronisiert:** <!-- synced -->2026-10-09
 
 Maintained by [helpcode.ai](https://helpcode.ai), the team that builds and maintains [AnythingMCP](https://github.com/HelpCode-ai/anythingmcp).
 
@@ -52,22 +52,34 @@ npm install && node scripts/smoke.mjs
 
 ## Tools
 
-12 Tools, erzeugt aus [`adapter/sap-business-one.json`](../adapter/sap-business-one.json). Tools mit **lesen** können im Quellsystem nichts ändern.
+24 Tools, erzeugt aus [`adapter/sap-business-one.json`](../adapter/sap-business-one.json). Tools mit **lesen** können im Quellsystem nichts ändern.
 
 <!-- tools:start (generated from adapter/*.json, do not edit) -->
 | Tool | Funktion | Zugriff |
 |---|---|---|
-| `b1_list_business_partners` | List business partners (customers, suppliers, leads). | lesen |
-| `b1_get_business_partner` | Get one business partner by CardCode. | lesen |
-| `b1_list_items` | List inventory items (articles). | lesen |
-| `b1_get_item` | Get one item by ItemCode. | lesen |
-| `b1_list_orders` | List sales orders. | lesen |
-| `b1_get_order` | Get one sales order by DocEntry (integer primary key). | lesen |
+| `b1_list_business_partners` | List business partners (customers, suppliers, leads) with their code, name, type and balance. | lesen |
+| `b1_get_business_partner` | Read one business partner by CardCode: addresses, contacts, payment terms and balance. | lesen |
+| `b1_list_items` | List inventory items with their code, name, prices and stock per warehouse (ItemWarehouseInfoCollection). | lesen |
+| `b1_get_item` | Read one item by ItemCode: prices, units, groups and stock in each warehouse. | lesen |
+| `b1_list_orders` | List sales orders with their customer, dates, totals and status (bost_Open / bost_Close). | lesen |
+| `b1_get_order` | Read one sales order by DocEntry (integer key, not DocNum), with all its lines. | lesen |
 | `b1_create_order` | Create a new sales order. | schreiben |
-| `b1_list_invoices` | List A/R invoices. | lesen |
-| `b1_get_invoice` | Get one A/R invoice by DocEntry. | lesen |
-| `b1_list_quotations` | List sales quotations. | lesen |
-| `b1_list_delivery_notes` | List delivery notes (outgoing goods movements). | lesen |
+| `b1_list_invoices` | List A/R invoices (sales invoices to customers). | lesen |
+| `b1_get_invoice` | Read one A/R invoice by DocEntry (integer key, not DocNum), with lines and taxes. | lesen |
+| `b1_list_quotations` | List sales quotations with their customer, validity date, totals and status. | lesen |
+| `b1_list_delivery_notes` | List delivery notes (goods shipped to customers) with their customer, date and lines. | lesen |
+| `b1_list_credit_notes` | List A/R credit memos (credit notes issued to customers) with their totals and status. | lesen |
+| `b1_list_purchase_invoices` | List A/P invoices (supplier invoices). | lesen |
+| `b1_get_purchase_invoice` | Read one A/P invoice in full, with its lines, taxes and withholding tax. | lesen |
+| `b1_list_purchase_credit_notes` | List A/P credit memos (credit notes received from suppliers). | lesen |
+| `b1_list_vendor_payments` | List outgoing payments to suppliers, with the invoices each one settles (PaymentInvoices). | lesen |
+| `b1_list_incoming_payments` | List incoming payments from customers, with the invoices each one settles (PaymentInvoices). | lesen |
+| `b1_list_journal_entries` | List journal entries with their lines (JournalEntryLines: account, debit, credit). | lesen |
+| `b1_get_journal_entry` | Read one journal entry by JdtNum (TransId) with all its lines: account, debit and credit. | lesen |
+| `b1_list_chart_of_accounts` | List G/L accounts of the chart of accounts with their code, name, type and balance. | lesen |
+| `b1_list_bank_statements` | List imported bank statements with their account, date and balances. | lesen |
+| `b1_list_external_reconciliations` | List external (bank) reconciliations of G/L or business partner accounts in a date or number range. | lesen |
+| `b1_get_external_reconciliation` | Read one external (bank) reconciliation: amount, date, type and the journal entry and bank statement lines it matched. | lesen |
 | `b1_get_company_info` | Sanity check: returns company metadata (admin info). | lesen |
 <!-- tools:end -->
 
@@ -85,8 +97,8 @@ Weitere (auf Englisch) in [examples/prompts.md](../examples/prompts.md).
 ## Authentifizierung
 
 **Setup**:
-1. Identify your Service Layer host (typically the same machine that runs HANA + SAP B1). Default HTTPS port is `50000`.
-2. Create or pick a B1 user that has API access for the company database you want to expose.
+1. Identify your Service Layer host (on HANA it usually runs on the database server; SQL Server installs and hosting partners run it on a separate host). Default HTTPS port is `50000`.
+2. Create or pick a B1 user that has API access for the company database you want to expose. A user without write authorizations is a safe start: every tool except `b1_create_order` only reads.
 3. Find the `CompanyDB` name in **Choose Company** dialog of the B1 client (looks like `SBODEMOGB`).
 4. Set the five env vars below. The adapter logs in once per session (~25 min TTL) and re-uses the `B1SESSION` cookie.
 
@@ -94,11 +106,19 @@ Weitere (auf Englisch) in [examples/prompts.md](../examples/prompts.md).
 
 **Filtering**: use standard OData `$filter` syntax, e.g. `CardCode eq 'C20000'` or `DocDate ge '2026-01-01'`.
 
+**Paging**: the Service Layer returns 20 rows per call unless the client asks for more, whatever `$top` says. Every list tool asks for pages of up to 100 rows (`Prefer: odata.maxpagesize=100`); when a response carries `@odata.nextLink`, call the same tool again with `skip` raised by the rows already read. Use `select` to keep wide documents (journal entries with their lines, invoices) small.
+
+**Keys and enums**: documents are read by `DocEntry` (internal key), not by `DocNum` (the number printed on the document). Booleans are `tYES` / `tNO`, document status is `bost_Open` / `bost_Close`, and `OriginalJournal` tells what created a journal entry (`ttJournalEntry` for manual entries, `ttAPInvoice`, `ttARInvoice`, `ttVendorPayment`, `ttReceipt`…).
+
+**Finance**: A/P invoices, A/P and A/R credit memos, outgoing and incoming payments, journal entries, the chart of accounts and bank statements each have a list tool. Bank reconciliations are not a list in the Service Layer: `b1_list_external_reconciliations` calls its reconciliation service (a POST that only reads) and returns account and number pairs for `b1_get_external_reconciliation`; open items are the documents whose `PaidToDate` is below `DocTotal`.
+
+**Permissions**: a `403` with SAP error `-6006` ("Modifying this object is not permitted for current user") means the login works but the B1 user lacks the authorization for that object. Grant it in **Administration → System Initialization → Authorizations**, or keep the user read-only on purpose.
+
 **Self-host caveat**: Business One is on-premise. The Service Layer is reachable from inside the customer network. To use the AnythingMCP Cloud, expose Service Layer via a reverse proxy + TLS cert; otherwise self-host the adapter on the same network.
 
 ## Sicherheit
 
-- **Lesen oder schreiben entscheidest du.** 11 der Tools lesen nur; `b1_create_order` können Daten ändern. Weise den Connector einem MCP-Server zu, dessen Rolle nur die gewünschten Tools freigibt; die anderen sieht dieser Client gar nicht.
+- **Lesen oder schreiben entscheidest du.** 23 der Tools lesen nur; `b1_create_order` können Daten ändern. Weise den Connector einem MCP-Server zu, dessen Rolle nur die gewünschten Tools freigibt; die anderen sieht dieser Client gar nicht.
 - **Zugangsdaten** werden mit AES-256-GCM verschlüsselt und nie an das Modell gegeben.
 - **Response-Mapping** entfernt oder formt Felder pro Tool, bevor sie das Modell erreichen, etwa Bankdaten oder personenbezogene Daten.
 - **Audit-Log:** Jeder Aufruf wird mit Eingabe, Ausgabe, Dauer und Status protokolliert, selbst gehostet in deiner eigenen Datenbank.
@@ -129,7 +149,7 @@ Noch nicht. Der Adapter folgt der Service-Layer-Dokumentation von SAP; Rückmeld
 
 ## Verwandte Repositories
 
-- [sap-mcp-server](https://github.com/HelpCode-ai/sap-mcp-server): SAP MCP server: connect SAP Business One, S/4HANA Cloud and Concur to Claude & ChatGPT. Orders, partners, invoices as AI tools.
+- [sap-mcp-server](https://github.com/HelpCode-ai/sap-mcp-server): SAP MCP server: connect SAP Business One, S/4HANA (Cloud, on-premise via OData or HANA SQL) and Concur to Claude & ChatGPT.
 - [odoo-mcp-server](https://github.com/keysersoft/odoo-mcp-server): Odoo MCP server: connect Odoo ERP to Claude & ChatGPT. Search, read, create and update any model: partners, orders, invoices.
 - [weclapp-mcp-server](https://github.com/kochfreiburg/weclapp-mcp-server): weclapp MCP server: connect weclapp Cloud ERP to Claude & ChatGPT. Customers, orders, invoices, quotes and opportunities.
 - [AnythingMCP](https://github.com/HelpCode-ai/anythingmcp): der Open-Source-MCP-Server und -Gateway, auf dem dieses Repository aufbaut.
